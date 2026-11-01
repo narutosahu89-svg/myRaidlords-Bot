@@ -20,14 +20,14 @@ pub fn lakukan(context: &mut Konteks<'_>, action: &Aksi, _state: &crate::state::
         Aksi::Daily => crate::quests::daily::daily(context.api),
         Aksi::Pass => crate::quests::pass::pass(context.api),
         Aksi::Events => crate::quests::event::events(context.api),
-        Aksi::Chest => crate::chest::chest::chest_unlock(context.api),
+        Aksi::Chest => open_chest(context.api),
         Aksi::Store => crate::store::store::store(context.api),
         Aksi::Army => crate::army::train::train_army(context.api),
         Aksi::Citadel => crate::village::citadel::citadel(context.api),
         Aksi::Arena => crate::champ::arena::champ_arena_start(context.api),
         Aksi::Duel => crate::champ::duel::champ_duel_start(context.api, false),
-        Aksi::War => crate::war::war::war_attack(context.api),
-        Aksi::Cwl => crate::war::cwl::cwl_attack(context.api),
+        Aksi::War => war_attack(context.api),
+        Aksi::Cwl => cwl_attack(context.api),
         Aksi::Treasury => crate::treasury::sell::treasury(context.api),
     };
     match result {
@@ -41,5 +41,31 @@ pub fn lakukan(context: &mut Konteks<'_>, action: &Aksi, _state: &crate::state::
             ));
             Hasil::Gagal
         }
+    }
+}
+
+
+fn open_chest(api: &Api) -> Result<Value> {
+    let board = crate::chest::chest::chest(api)?;
+    match crate::chest::chest::ready(&board) {
+        Some(id) => crate::chest::chest::chest_unlock(api, &id),
+        None => Ok(board),
+    }
+}
+
+fn war_attack(api: &Api) -> Result<Value> {
+    let board = crate::war::war::war(api)?;
+    match crate::war::war::open_positions(&board).into_iter().next() {
+        Some(position) => crate::war::war::war_attack(api, position),
+        None => Ok(board),
+    }
+}
+
+fn cwl_attack(api: &Api) -> Result<Value> {
+    let board = crate::war::cwl::cwl(api)?;
+    let positions = crate::war::war::open_positions(&board);
+    match positions.into_iter().next() {
+        Some(position) => crate::war::cwl::cwl_attack(api, position),
+        None => Ok(board),
     }
 }
