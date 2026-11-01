@@ -13,7 +13,7 @@ use crate::support::cfg::Config;
 use crate::support::consts::app::{
     CYCLE_JITTER_SECS, CYCLE_STEPS_MAX, GAME_BUILD, RECOVER_TRIES, SIM_SHA256, TRANSIENT_PAUSE_SECS,
 };
-use crate::support::consts::net::{SIM_URL, VERSION_URL};
+use crate::support::consts::net;
 use crate::support::error::{Error, Result};
 use crate::support::log;
 use crate::{army, champ, chest, quests, raid, store, treasury, village, war};
@@ -283,7 +283,7 @@ pub fn tarik_state(api: &Api) -> Result<Snapshot> {
 }
 
 pub fn versi_hidup(api: &Api) -> String {
-    let live = match api.fetch(VERSION_URL) {
+    let live = match api.fetch(net::version_url()) {
         Ok(bytes) => String::from_utf8_lossy(&bytes).trim().to_string(),
         Err(_) => return GAME_BUILD.to_string(),
     };
@@ -314,7 +314,7 @@ fn sim_cocok(api: &Api, live: &str) -> bool {
         }
     }
 
-    let url = format!("{}{}", SIM_URL, live);
+    let url = format!("{}{}", net::sim_url(), live);
     let ok = match api.fetch(&url) {
         Ok(bytes) => fingerprint(&bytes) == SIM_SHA256,
         Err(_) => true,
