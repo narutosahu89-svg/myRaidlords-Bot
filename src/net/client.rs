@@ -2,7 +2,7 @@ use std::sync::{Mutex, MutexGuard};
 
 use reqwest::blocking::{Client, ClientBuilder};
 use reqwest::header::{HeaderMap, HeaderValue, ACCEPT, CONTENT_TYPE, USER_AGENT};
-use serde_json::{json, Value};
+use serde_json::Value;
 
 use crate::net::{pace::Pace, proxy::ProxySpec};
 use crate::support::consts::net::{self, MIN_REQUEST_GAP_MS, REQUEST_JITTER_MS, REQUEST_TIMEOUT_SECS};
