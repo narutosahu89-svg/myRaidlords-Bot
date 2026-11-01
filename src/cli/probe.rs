@@ -63,7 +63,7 @@ pub fn jalankan(api: &Api) -> Result<()> {
         }
     }
 
-    if let Some(entry) = otak.kondisi().kutip(Sumber::Treasury) {
+    if let Some(entry) = otak.kutip(Sumber::Treasury) {
         if let Some(room) = entry.get("room_usd").and_then(|v| v.as_f64()) {
             log::ly(&format!("The treasury has room for {:.2} usd", room));
         }
