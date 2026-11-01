@@ -133,11 +133,15 @@ impl Otak {
     fn bangun_rencana(&mut self) {
         self.steps.clear();
         self.cursor = 0;
-        let state = &self.kondisi.state;
-        if state.has_ready_collectors() {
+        // Read readiness flags before mutating the plan to avoid overlapping
+        // immutable and mutable borrows of self.
+        let collectors_ready = self.kondisi.state.has_ready_collectors();
+        let forge_ready = self.kondisi.state.has_forge_ready();
+        let chest_ready = self.kondisi.state.has_pending_chest();
+        if collectors_ready {
             self.push(Aksi::Collect, "collectors have resources ready");
         }
-        if state.has_forge_ready() {
+        if forge_ready {
             self.push(Aksi::Forge, "the forge has a completed batch");
         }
         // Public boards are refreshed each cycle; their handlers are responsible
@@ -146,7 +150,7 @@ impl Otak {
         self.push(Aksi::Daily, "check daily tasks and rewards");
         self.push(Aksi::Pass, "check season-pass progress");
         self.push(Aksi::Events, "check active event progress");
-        if state.has_pending_chest() { self.push(Aksi::Chest, "a chest is ready to open"); }
+        if chest_ready { self.push(Aksi::Chest, "a chest is ready to open"); }
         self.push(Aksi::Store, "check the store against current inventory");
         self.push(Aksi::Army, "check troop training and army capacity");
         self.push(Aksi::Citadel, "check citadel status and contributions");
